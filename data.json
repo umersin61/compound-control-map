@@ -1,0 +1,1549 @@
+{
+  "title": "Compound Control Map",
+  "version": "2026-09-21.1",
+  "chain": {
+    "name": "Ethereum",
+    "chainId": 1
+  },
+  "asOf": "2026-09-21",
+  "reviewMethod": "Read-only Etherscan contract calls and public primary-source documentation. Values were observed across a review session, not at one pinned block. On-chain verified means the returned state was inspected; it is not a full security audit or independently archived RPC proof.",
+  "scope": "Institutional Comet control paths, four principal Safe owner sets, one nested Safe, and selected treasury revocation precedents. No claim to enumerate all Compound wallets or all human relationships.",
+  "nodes": [
+    {
+      "id": "gov",
+      "label": "Compound Governor",
+      "type": "governance",
+      "address": "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0",
+      "summary": "COMP governance proposal and voting contract.",
+      "powers": "Successful proposals can execute through the Governor Timelock, subject to voting, timelock and cancellation rules. A vote does not grant permissions that a destination contract does not recognize.",
+      "sources": [
+        "gov"
+      ],
+      "status": "onchain",
+      "readDate": "2026-09-19"
+    },
+    {
+      "id": "timelock",
+      "label": "Governor Timelock",
+      "type": "governance",
+      "address": "0x6d903f6003cca6255D85CcA4D3B5E5146dC33925",
+      "summary": "Execution address for Compound governance.",
+      "powers": "Can exercise permissions granted to this address, including the Treasury Timelock administrator role. It is absent from the verified Admin and Upgrade Safe owner lists.",
+      "sources": [
+        "timelock",
+        "treasury",
+        "admin",
+        "upgrade"
+      ],
+      "status": "onchain"
+    },
+    {
+      "id": "admin",
+      "label": "Admin Safe",
+      "type": "safe",
+      "address": "0x4f05f11CA5dE8946958d58AD765f16755f23b113",
+      "summary": "Institutional market administration.",
+      "powers": "Comet.governor() and Configurator.governor() point here. This Safe can authorize the administrative functions exposed by those contracts; the proxy upgrade ownership is separate.",
+      "sources": [
+        "admin",
+        "comet",
+        "config"
+      ],
+      "status": "onchain",
+      "threshold": 3,
+      "owners": [
+        "fd947",
+        "FC63",
+        "0660",
+        "671b"
+      ],
+      "modules": [],
+      "moduleDate": "2026-09-21"
+    },
+    {
+      "id": "upgrade",
+      "label": "Upgrade Safe",
+      "type": "safe",
+      "address": "0x76a07f14b53a205000d010af6cf96d4a41638629",
+      "summary": "Owns Institutional Comet’s proxy administrator.",
+      "powers": "CometProxyAdmin.owner() points here. The owner can authorize proxy upgrade/admin operations. All four Admin Safe owner addresses are in this seven-owner set.",
+      "sources": [
+        "upgrade",
+        "proxyadmin"
+      ],
+      "status": "onchain",
+      "threshold": 4,
+      "owners": [
+        "d2A7",
+        "671b",
+        "FcFf",
+        "FC63",
+        "fd947",
+        "0660",
+        "9963"
+      ],
+      "modules": [],
+      "moduleDate": "2026-09-21"
+    },
+    {
+      "id": "tmc",
+      "label": "TMC Safe",
+      "type": "safe",
+      "address": "0x8BacCcA3e83843555867b3865d7689D099406567",
+      "summary": "Treasury Management Committee signing authority.",
+      "powers": "Controls assets held by this Safe through its signing threshold, and has delegated treasury roles. Governance’s authority over the treasury escrow/timelock must not be confused with ownership of this Safe.",
+      "sources": [
+        "tmc",
+        "treasury",
+        "tmc-transparency"
+      ],
+      "status": "onchain",
+      "threshold": 4,
+      "owners": [
+        "aA9D",
+        "fd947",
+        "66cD",
+        "f5e6",
+        "FC63",
+        "0660"
+      ],
+      "modules": [],
+      "moduleDate": "2026-09-19"
+    },
+    {
+      "id": "community",
+      "label": "Community Multisig",
+      "type": "safe",
+      "address": "0xbbf3f1421D886E9b2c5D716B5192aC998af2012c",
+      "summary": "Proposal Guardian and security authority.",
+      "powers": "Can cancel unexecuted Governor proposals while its guardian authority is active. This is a human-operated cancellation power, not an automatic distinction between legitimate and malicious proposals. Market pause authority is documented separately.",
+      "sources": [
+        "community",
+        "gov",
+        "deployment"
+      ],
+      "status": "onchain",
+      "threshold": 5,
+      "owners": [
+        "55be",
+        "4A3a",
+        "a1bB",
+        "d2A7",
+        "9A73",
+        "46B3",
+        "FC63",
+        "7e4A",
+        "2B38"
+      ]
+    },
+    {
+      "id": "comet",
+      "label": "Institutional Comet",
+      "type": "contract",
+      "address": "0x207158a267CBD2598BB3d611D8CBdEE2709F2F8C",
+      "summary": "Ethereum institutional USDC market proxy.",
+      "powers": "The current governor is the Admin Safe. getProxyAdmin(comet) identifies CometProxyAdmin as proxy administrator. Launch configuration documents the Community Multisig as pauseGuardian; this getter was not successfully refreshed in the current review.",
+      "sources": [
+        "comet",
+        "proxyadmin",
+        "deployment"
+      ],
+      "status": "onchain"
+    },
+    {
+      "id": "config",
+      "label": "Configurator",
+      "type": "contract",
+      "address": "0xd61c0169e931381fb3cC4B40316805333808c1Fa",
+      "summary": "Builds market configurations.",
+      "powers": "governor() is the Admin Safe; marketAdminPermissionChecker() is the zero address. CometProxyAdmin.getProxyAdmin(configurator) returns the same proxy administrator.",
+      "sources": [
+        "config",
+        "proxyadmin"
+      ],
+      "status": "onchain"
+    },
+    {
+      "id": "proxyadmin",
+      "label": "CometProxyAdmin",
+      "type": "contract",
+      "address": "0x362739f84fFE4e5F06395301617A90F62eE1f4cf",
+      "summary": "Institutional upgrade authority.",
+      "powers": "owner() is the Upgrade Safe. getProxyAdmin() succeeds for both the Comet and Configurator proxies. marketAdminPermissionChecker() is zero.",
+      "sources": [
+        "proxyadmin"
+      ],
+      "status": "onchain"
+    },
+    {
+      "id": "treasury",
+      "label": "Treasury Timelock",
+      "type": "contract",
+      "address": "0xefeD08b791423C7D7937507Cf840E86a7ddC11c1",
+      "summary": "Delegated treasury execution with superior governance administration.",
+      "powers": "The Governor Timelock has DEFAULT_ADMIN_ROLE. TMC has proposer and executor roles; the Community Multisig has a cancellation role. Governance can change subordinate roles through its administrator authority. This is an access-control precedent, not a claim of proxy upgradeability.",
+      "sources": [
+        "treasury",
+        "tmc-transparency"
+      ],
+      "status": "onchain",
+      "roleDate": "2026-09-19; administrator refreshed 2026-09-21"
+    },
+    {
+      "id": "escrow",
+      "label": "Treasury escrow",
+      "type": "contract",
+      "address": "0xDcB34b56842F853A69E86De5A0c22c49d97C130C",
+      "summary": "Treasury custody before withdrawal.",
+      "powers": "The deployed contract exposes a Timelock-only revoke(tokens, amounts) route returning available escrow assets to the Governor Timelock. It does not recover funds already withdrawn to the TMC Safe or unrelated destinations. Individual token transfers can fail.",
+      "sources": [
+        "escrow"
+      ],
+      "status": "onchain",
+      "readDate": "2026-09-19"
+    },
+    {
+      "id": "avatar",
+      "label": "Avantgarde Avatar",
+      "type": "safe",
+      "address": "0xeB6332bbB14b1488eFb3A395B8EBF6a6904C4241",
+      "summary": "A Compound-native delegation precedent.",
+      "powers": "The earlier review found the Treasury Timelock as the single owner (threshold 1). Historical proposals describe limited manager operations through Zodiac Roles. Current role permissions are outside this map’s full audit scope.",
+      "sources": [
+        "avatar",
+        "zodiac",
+        "tmc-transparency"
+      ],
+      "status": "onchain",
+      "readDate": "2026-09-19"
+    },
+    {
+      "id": "controller",
+      "label": "Governance controller",
+      "type": "proposal",
+      "address": null,
+      "summary": "Conceptual ownership and revocation layer — not deployed.",
+      "powers": "Governance would retain ownership and the ability to replace operators. Operations could be delegated with explicit limits. Upgrade permissions must not allow an operator to remove governance’s superior authority. Requires implementation, security review and migration by existing controllers.",
+      "sources": [
+        "discussion",
+        "zodiac"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "fd947",
+      "label": "compound-dao.eth",
+      "type": "safe",
+      "address": "0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2",
+      "summary": "Etherscan ENS label; nested 2-of-3 Safe. The label alone does not establish authority to represent the DAO. Exact organizational attribution is unresolved.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "nested",
+        "admin",
+        "upgrade",
+        "tmc"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "threshold": 2,
+      "owners": [
+        "0660",
+        "B8Dc",
+        "3d0e"
+      ]
+    },
+    {
+      "id": "FC63",
+      "label": "Gauntlet",
+      "type": "organization",
+      "address": "0xFC63ef192E26E428f349057544a8786453C94f84",
+      "summary": "Publicly listed as Gauntlet’s current Community Multisig signer in the April 2026 update. The individual key custodian is not identified.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "admin",
+        "upgrade",
+        "tmc",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "0660",
+      "label": "Unattributed · 0660",
+      "type": "unknown",
+      "address": "0x0660db80d6e5DFD9Fe168B7967B09A09328E6bF2",
+      "summary": "Owner on Admin, Upgrade, TMC and the nested compound-dao.eth Safe. Public person or organization attribution was not established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "admin",
+        "upgrade",
+        "tmc",
+        "nested"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "671b",
+      "label": "Unattributed · 671b",
+      "type": "unknown",
+      "address": "0x671bcF4ff02718F2eC863930D8353b045489a00A",
+      "summary": "Owner on Admin and Upgrade. Do not assign a Foundation or security-provider seat by elimination.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "admin",
+        "upgrade"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "d2A7",
+      "label": "WOOF",
+      "type": "organization",
+      "address": "0xd2A79F263eC55DBC7B724eCc20FC7448D4795a0C",
+      "summary": "Listed as WOOF in the current signer register; an earlier register identifies Dmytriy B. (WOOF). This is a public role attribution, not proof of present individual key custody.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "upgrade",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "FcFf",
+      "label": "Unattributed · FcFf",
+      "type": "unknown",
+      "address": "0xFcFf41fe8F3BBC53562a1543c52Ec5898248800B",
+      "summary": "Upgrade Safe owner. No supported public identity established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "upgrade"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "9963",
+      "label": "Unattributed · 9963",
+      "type": "unknown",
+      "address": "0x9963d2f9c7E416770771d1cAF8b46ef116a2085f",
+      "summary": "Upgrade Safe owner. No supported public identity established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "upgrade"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "aA9D",
+      "label": "Victor · Platonia",
+      "type": "person",
+      "address": "0xaA9D81Ae677baf7fb47A1B1B89661f45CD81Fb2e",
+      "summary": "The TMC transparency update identifies this owner as Victor, founder of Platonia, added on 11 June 2026.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "tmc-update",
+        "tmc"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true
+    },
+    {
+      "id": "66cD",
+      "label": "allthecolors",
+      "type": "person",
+      "address": "0x66cD62c6F8A4BB0Cd8720488BCBd1A6221B765F9",
+      "summary": "Public pseudonym. A 2022 forum post self-attests control of this exact address and allthecolors.eth. Current TMC membership is verified separately.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "colors",
+        "tmc"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true
+    },
+    {
+      "id": "f5e6",
+      "label": "Unattributed · f5e6",
+      "type": "unknown",
+      "address": "0xf5e68cBD19d94D5e2ddEAc8db020Cae604074444",
+      "summary": "TMC owner. No supported public identity established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "tmc"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "55be",
+      "label": "ZeroShadow",
+      "type": "organization",
+      "address": "0x55bea483873291eB3ded185c9962676F107cB4D6",
+      "summary": "Current Community Multisig register identifies this organizational seat. Individual key custodian is not established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "4A3a",
+      "label": "Certora",
+      "type": "organization",
+      "address": "0x4A3a60ee1007A477EDFccB7182ee7F4Ef876fa25",
+      "summary": "Current Community Multisig register identifies this organizational seat.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "a1bB",
+      "label": "ChainSecurity",
+      "type": "organization",
+      "address": "0xa1bB2061FEbaF91738f104a19073C84589B92b53",
+      "summary": "Current Community Multisig register identifies this organizational seat.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "9A73",
+      "label": "PGov",
+      "type": "organization",
+      "address": "0x9A73D57BB1fB280C5672A13f655675De25F13b70",
+      "summary": "Current Community Multisig register identifies PGov. The CGWG renewal separately documents PGov’s membership and Community Multisig coordination role.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true,
+      "human": "Not publicly established in reviewed sources"
+    },
+    {
+      "id": "46B3",
+      "label": "Michael Lewellen",
+      "type": "person",
+      "address": "0x46B360011A84C5759680852ed90E6Db44E18F08c",
+      "summary": "Named in the September 2025 rotation and the April 2026 current register.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true
+    },
+    {
+      "id": "7e4A",
+      "label": "0age",
+      "type": "person",
+      "address": "0x7e4A8391C728fEd9069B2962699AB416628B19Fa",
+      "summary": "Public pseudonym in the current register. Historical Dharma affiliation is not treated as current employment.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true
+    },
+    {
+      "id": "2B38",
+      "label": "arr00",
+      "type": "person",
+      "address": "0x2B384212EDc04Ae8bB41738D05BA20E33277bf33",
+      "summary": "Public pseudonym in the current register. No additional personal identity inferred.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "community-list",
+        "community"
+      ],
+      "status": "documented",
+      "identityStatus": "documented",
+      "signer": true
+    },
+    {
+      "id": "B8Dc",
+      "label": "Unattributed · B8Dc",
+      "type": "unknown",
+      "address": "0xB8Dcad009E533066F12e408075E10E3a30F1f15A",
+      "summary": "Nested compound-dao.eth Safe owner. Deployment activity does not establish an individual or organization.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "nested"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "3d0e",
+      "label": "Unattributed · 3d0e",
+      "type": "unknown",
+      "address": "0x3d0e30031b547737fFCf13c127350159A6C4ce17",
+      "summary": "Nested compound-dao.eth Safe owner. No supported public identity established.",
+      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "sources": [
+        "nested"
+      ],
+      "status": "unknown",
+      "identityStatus": "unknown",
+      "signer": true
+    },
+    {
+      "id": "foundation",
+      "label": "Compound Foundation",
+      "type": "organization",
+      "address": null,
+      "summary": "Documented institutional participant.",
+      "powers": "Forum descriptions place the Foundation among the Admin and Upgrade Safe institutional constituencies and within the TMC structure. The reviewed sources do not map every relevant owner key to an individual Foundation representative.",
+      "sources": [
+        "discussion",
+        "tmc-mandate"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "cgwg",
+      "label": "CGWG",
+      "type": "organization",
+      "address": null,
+      "summary": "Governance working group.",
+      "powers": "Publicly described as Arana Digital and PGov. PGov is a documented Community Multisig signer and coordinator. Exact attribution of compound-dao.eth and the unidentified institutional owner keys remains unresolved.",
+      "sources": [
+        "cgwg",
+        "discussion"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "security",
+      "label": "Security providers",
+      "type": "organization",
+      "address": null,
+      "summary": "Documented institutional security roles.",
+      "powers": "ChainSecurity and Certora publicly describe a joint security engagement; both have distinct Community Multisig signer addresses. Institutional market seat descriptions do not establish which unidentified addresses belong to which security personnel.",
+      "sources": [
+        "ssp",
+        "community-list",
+        "discussion"
+      ],
+      "status": "documented"
+    }
+  ],
+  "edges": [
+    {
+      "from": "gov",
+      "to": "timelock",
+      "type": "executes-through",
+      "label": "executes through",
+      "status": "onchain",
+      "sources": [
+        "gov"
+      ]
+    },
+    {
+      "from": "community",
+      "to": "gov",
+      "type": "vetoes",
+      "label": "can cancel before execution",
+      "status": "onchain",
+      "sources": [
+        "gov"
+      ]
+    },
+    {
+      "from": "timelock",
+      "to": "admin",
+      "type": "missing-direct-revocation-path",
+      "label": "no direct revocation path identified",
+      "status": "inferred",
+      "sources": [
+        "admin",
+        "upgrade",
+        "comet",
+        "proxyadmin",
+        "discussion"
+      ]
+    },
+    {
+      "from": "timelock",
+      "to": "upgrade",
+      "type": "missing-direct-revocation-path",
+      "label": "no direct revocation path identified",
+      "status": "inferred",
+      "sources": [
+        "upgrade",
+        "proxyadmin",
+        "discussion"
+      ]
+    },
+    {
+      "from": "admin",
+      "to": "comet",
+      "type": "administers",
+      "label": "governor",
+      "status": "onchain",
+      "sources": [
+        "comet"
+      ]
+    },
+    {
+      "from": "admin",
+      "to": "config",
+      "type": "administers",
+      "label": "governor",
+      "status": "onchain",
+      "sources": [
+        "config"
+      ]
+    },
+    {
+      "from": "upgrade",
+      "to": "proxyadmin",
+      "type": "owns",
+      "label": "owner",
+      "status": "onchain",
+      "sources": [
+        "proxyadmin"
+      ]
+    },
+    {
+      "from": "proxyadmin",
+      "to": "comet",
+      "type": "upgrades",
+      "label": "proxy administrator",
+      "status": "onchain",
+      "sources": [
+        "proxyadmin"
+      ]
+    },
+    {
+      "from": "proxyadmin",
+      "to": "config",
+      "type": "upgrades",
+      "label": "proxy administrator",
+      "status": "onchain",
+      "sources": [
+        "proxyadmin"
+      ]
+    },
+    {
+      "from": "community",
+      "to": "comet",
+      "type": "pauses",
+      "label": "pause guardian · documented",
+      "status": "documented",
+      "sources": [
+        "deployment"
+      ]
+    },
+    {
+      "from": "timelock",
+      "to": "treasury",
+      "type": "can-revoke",
+      "label": "administrator · can revoke roles",
+      "status": "onchain",
+      "sources": [
+        "treasury"
+      ]
+    },
+    {
+      "from": "tmc",
+      "to": "treasury",
+      "type": "administers",
+      "label": "proposes / executes",
+      "status": "onchain",
+      "sources": [
+        "treasury"
+      ]
+    },
+    {
+      "from": "community",
+      "to": "treasury",
+      "type": "vetoes",
+      "label": "cancels treasury operations",
+      "status": "onchain",
+      "sources": [
+        "treasury"
+      ]
+    },
+    {
+      "from": "timelock",
+      "to": "escrow",
+      "type": "can-revoke",
+      "label": "revoke escrowed assets",
+      "status": "onchain",
+      "sources": [
+        "escrow"
+      ]
+    },
+    {
+      "from": "tmc",
+      "to": "escrow",
+      "type": "administers",
+      "label": "withdrawal authority",
+      "status": "onchain",
+      "sources": [
+        "escrow"
+      ]
+    },
+    {
+      "from": "treasury",
+      "to": "avatar",
+      "type": "owns",
+      "label": "sole Safe owner",
+      "status": "onchain",
+      "sources": [
+        "avatar"
+      ]
+    },
+    {
+      "from": "fd947",
+      "to": "admin",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "admin"
+      ]
+    },
+    {
+      "from": "FC63",
+      "to": "admin",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "admin"
+      ]
+    },
+    {
+      "from": "0660",
+      "to": "admin",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "admin"
+      ]
+    },
+    {
+      "from": "671b",
+      "to": "admin",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "admin"
+      ]
+    },
+    {
+      "from": "d2A7",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "671b",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "FcFf",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "FC63",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "fd947",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "0660",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "9963",
+      "to": "upgrade",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "upgrade"
+      ]
+    },
+    {
+      "from": "aA9D",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "fd947",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "66cD",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "f5e6",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "FC63",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "0660",
+      "to": "tmc",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "tmc"
+      ]
+    },
+    {
+      "from": "55be",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "4A3a",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "a1bB",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "d2A7",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "9A73",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "46B3",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "FC63",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "7e4A",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "2B38",
+      "to": "community",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "community"
+      ]
+    },
+    {
+      "from": "0660",
+      "to": "fd947",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "nested"
+      ]
+    },
+    {
+      "from": "B8Dc",
+      "to": "fd947",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "nested"
+      ]
+    },
+    {
+      "from": "3d0e",
+      "to": "fd947",
+      "type": "signer-of",
+      "label": "owner / signer",
+      "status": "onchain",
+      "sources": [
+        "nested"
+      ]
+    },
+    {
+      "from": "9A73",
+      "to": "cgwg",
+      "type": "member-of",
+      "label": "member / coordinator",
+      "status": "documented",
+      "sources": [
+        "cgwg"
+      ]
+    },
+    {
+      "from": "4A3a",
+      "to": "security",
+      "type": "member-of",
+      "label": "joint security engagement",
+      "status": "documented",
+      "sources": [
+        "ssp"
+      ]
+    },
+    {
+      "from": "a1bB",
+      "to": "security",
+      "type": "member-of",
+      "label": "joint security engagement",
+      "status": "documented",
+      "sources": [
+        "ssp"
+      ]
+    },
+    {
+      "from": "foundation",
+      "to": "admin",
+      "type": "documented-seat",
+      "label": "institutional constituency; key unresolved",
+      "status": "documented",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "cgwg",
+      "to": "admin",
+      "type": "documented-seat",
+      "label": "institutional constituency; key unresolved",
+      "status": "documented",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "security",
+      "to": "admin",
+      "type": "documented-seat",
+      "label": "institutional constituency; key unresolved",
+      "status": "documented",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "timelock",
+      "to": "controller",
+      "type": "owns",
+      "label": "owns / can replace delegates",
+      "status": "proposed",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "controller",
+      "to": "admin",
+      "type": "delegates-to",
+      "label": "scoped operational authority",
+      "status": "proposed",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "controller",
+      "to": "upgrade",
+      "type": "delegates-to",
+      "label": "constrained upgrade authority",
+      "status": "proposed",
+      "sources": [
+        "discussion"
+      ]
+    },
+    {
+      "from": "controller",
+      "to": "comet",
+      "type": "can-revoke",
+      "label": "retains ultimate authority",
+      "status": "proposed",
+      "sources": [
+        "discussion"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "gov",
+      "title": "Compound Governor · verified contract",
+      "url": "https://etherscan.io/address/0x309a862bbC1A00e45506cB8A802D1ff10004c8C0#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-19"
+    },
+    {
+      "id": "timelock",
+      "title": "Governor Timelock · contract state",
+      "url": "https://etherscan.io/address/0x6d903f6003cca6255D85CcA4D3B5E5146dC33925#readContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-19"
+    },
+    {
+      "id": "admin",
+      "title": "Admin Safe · contract state",
+      "url": "https://etherscan.io/address/0x4f05f11CA5dE8946958d58AD765f16755f23b113#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "upgrade",
+      "title": "Upgrade Safe · contract state",
+      "url": "https://etherscan.io/address/0x76a07f14b53a205000d010af6cf96d4a41638629#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "tmc",
+      "title": "TMC Safe · contract state",
+      "url": "https://etherscan.io/address/0x8BacCcA3e83843555867b3865d7689D099406567#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "community",
+      "title": "Community Multisig · contract state",
+      "url": "https://etherscan.io/address/0xbbf3f1421D886E9b2c5D716B5192aC998af2012c#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "comet",
+      "title": "Institutional Comet · contract state",
+      "url": "https://etherscan.io/address/0x207158a267CBD2598BB3d611D8CBdEE2709F2F8C#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "proxyadmin",
+      "title": "CometProxyAdmin · contract state",
+      "url": "https://etherscan.io/address/0x362739f84fFE4e5F06395301617A90F62eE1f4cf#readContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "config",
+      "title": "Configurator · contract state",
+      "url": "https://etherscan.io/address/0xd61c0169e931381fb3cC4B40316805333808c1Fa#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "treasury",
+      "title": "Treasury Timelock · contract state",
+      "url": "https://etherscan.io/address/0xefeD08b791423C7D7937507Cf840E86a7ddC11c1#readContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "escrow",
+      "title": "Treasury escrow · contract state",
+      "url": "https://etherscan.io/address/0xDcB34b56842F853A69E86De5A0c22c49d97C130C#readContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-19"
+    },
+    {
+      "id": "avatar",
+      "title": "Avantgarde Avatar Safe · contract state",
+      "url": "https://etherscan.io/address/0xeB6332bbB14b1488eFb3A395B8EBF6a6904C4241#readProxyContract",
+      "kind": "onchain",
+      "note": "Read-only explorer contract calls; re-run the methods listed in the evidence ledger. These URLs show current state, not a pinned historical block.",
+      "accessed": "2026-09-19"
+    },
+    {
+      "id": "nested",
+      "title": "compound-dao.eth · nested Safe",
+      "url": "https://etherscan.io/address/0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2#readProxyContract",
+      "kind": "onchain",
+      "note": "getOwners() and getThreshold(); ENS label displayed by explorer.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "community-list",
+      "title": "Community Multisig · April 2026 signer update",
+      "url": "https://www.comp.xyz/t/community-multisig-deployment/134/25",
+      "kind": "documented",
+      "note": "Current public address-to-name register. Earlier posts 19, 20 and 23 provide rotation history.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "tmc-update",
+      "title": "TMC transparency · Victor addition",
+      "url": "https://www.comp.xyz/t/tmc-transparency-thread/7917/2",
+      "kind": "documented",
+      "note": "Named address; increase from 3/5 to 4/6.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "tmc-transparency",
+      "title": "TMC transparency · deployed architecture",
+      "url": "https://www.comp.xyz/t/tmc-transparency-thread/7917",
+      "kind": "documented",
+      "note": "Escrow, treasury timelock and external treasury strategies; statements are distinguished from live contract reads.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "colors",
+      "title": "allthecolors · exact-address self-attestation",
+      "url": "https://www.comp.xyz/t/cgp-2-0-delegated-domain-allocation-by-questbook/3352/56",
+      "kind": "documented",
+      "note": "Public 2022 self-attestation. Signature was not independently recovered in this review.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "discussion",
+      "title": "Institutional Comet · governance discussion",
+      "url": "https://www.comp.xyz/t/transfer-ultimate-control-of-institutional-comet-to-compound-governance/8061/2",
+      "kind": "documented",
+      "note": "Arana Digital describes launch authority, acknowledges absence of direct COMP revocation, and names institutional seat categories.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "transition",
+      "title": "Institutional Comet · transition discussion",
+      "url": "https://www.comp.xyz/t/transfer-ultimate-control-of-institutional-comet-to-compound-governance/8061/9",
+      "kind": "documented",
+      "note": "Foundation discusses handover assessment and possible implementation constraints. A statement of intent is not a deployed control path.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "deployment",
+      "title": "Institutional deployment · code review",
+      "url": "https://github.com/Compound-Foundation/comet/pull/18/files",
+      "kind": "documented",
+      "note": "Deployment roots and configuration; used to corroborate addresses and document pause guardian.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "terms",
+      "title": "Foundation terms · launch-phase administration",
+      "url": "https://www.compound.xyz/terms-of-service",
+      "kind": "documented",
+      "note": "Section 3A explicitly distinguishes launch-phase market administration from Compound Governance.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "cgwg",
+      "title": "CGWG renewal · roles and coordination",
+      "url": "https://www.comp.xyz/t/renewing-the-compound-governance-working-group-cgwg-2026/7566/1",
+      "kind": "documented",
+      "note": "Arana Digital and PGov roles, multisig coordination and Foundation cooperation. Organizational connections are not proof of common key custody.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "stewardship",
+      "title": "CGWG · governance authority statement",
+      "url": "https://www.comp.xyz/t/renewing-the-compound-governance-working-group-cgwg-2026/7566/11",
+      "kind": "documented",
+      "note": "States that changes to the stewardship model are within governance authority; policy statement rather than an executable permission.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "tmc-mandate",
+      "title": "TMC establishment · proposed architecture",
+      "url": "https://www.comp.xyz/t/establishment-of-treasury-management-program-and-treasury-management-committee/7710",
+      "kind": "documented",
+      "note": "Original design and committee remit. Its upgradeability description is not substituted for verification of deployed access control.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "zodiac",
+      "title": "Avantgarde · governance-owned delegation proposal",
+      "url": "https://www.comp.xyz/t/a-treasury-growth-strategy-for-compound/6205/28",
+      "kind": "documented",
+      "note": "Proposed Avatar Safe ownership and scoped Zodiac Roles delegation. Historical design precedent, not proof that the same design is deployed for Institutional Comet.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "ssp",
+      "title": "Security service providers · joint proposal",
+      "url": "https://www.comp.xyz/t/request-for-proposal-rfp-compound-dao-security-service-provider-ssp/6955/3",
+      "kind": "documented",
+      "note": "ChainSecurity and Certora jointly describe security responsibilities and multisig participation.",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": "resolution",
+      "title": "Proposal 608 · governance resolution",
+      "url": "https://www.tally.xyz/gov/compound/proposal/608?govId=eip155:1:0x309a862bbC1A00e45506cB8A802D1ff10004c8C0",
+      "kind": "documented",
+      "note": "Resolution context. This map does not assert a current voting outcome or that a signaling vote itself changes permissions.",
+      "accessed": "2026-09-21"
+    }
+  ],
+  "evidence": [
+    {
+      "node": "admin",
+      "date": "2026-09-21",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2",
+          "0xFC63ef192E26E428f349057544a8786453C94f84",
+          "0x0660db80d6e5DFD9Fe168B7967B09A09328E6bF2",
+          "0x671bcF4ff02718F2eC863930D8353b045489a00A"
+        ],
+        "threshold": 3
+      },
+      "source": "admin"
+    },
+    {
+      "node": "upgrade",
+      "date": "2026-09-21",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0xd2A79F263eC55DBC7B724eCc20FC7448D4795a0C",
+          "0x671bcF4ff02718F2eC863930D8353b045489a00A",
+          "0xFcFf41fe8F3BBC53562a1543c52Ec5898248800B",
+          "0xFC63ef192E26E428f349057544a8786453C94f84",
+          "0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2",
+          "0x0660db80d6e5DFD9Fe168B7967B09A09328E6bF2",
+          "0x9963d2f9c7E416770771d1cAF8b46ef116a2085f"
+        ],
+        "threshold": 4
+      },
+      "source": "upgrade"
+    },
+    {
+      "node": "tmc",
+      "date": "2026-09-21",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0xaA9D81Ae677baf7fb47A1B1B89661f45CD81Fb2e",
+          "0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2",
+          "0x66cD62c6F8A4BB0Cd8720488BCBd1A6221B765F9",
+          "0xf5e68cBD19d94D5e2ddEAc8db020Cae604074444",
+          "0xFC63ef192E26E428f349057544a8786453C94f84",
+          "0x0660db80d6e5DFD9Fe168B7967B09A09328E6bF2"
+        ],
+        "threshold": 4
+      },
+      "source": "tmc"
+    },
+    {
+      "node": "community",
+      "date": "2026-09-21",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0x55bea483873291eB3ded185c9962676F107cB4D6",
+          "0x4A3a60ee1007A477EDFccB7182ee7F4Ef876fa25",
+          "0xa1bB2061FEbaF91738f104a19073C84589B92b53",
+          "0xd2A79F263eC55DBC7B724eCc20FC7448D4795a0C",
+          "0x9A73D57BB1fB280C5672A13f655675De25F13b70",
+          "0x46B360011A84C5759680852ed90E6Db44E18F08c",
+          "0xFC63ef192E26E428f349057544a8786453C94f84",
+          "0x7e4A8391C728fEd9069B2962699AB416628B19Fa",
+          "0x2B384212EDc04Ae8bB41738D05BA20E33277bf33"
+        ],
+        "threshold": 5
+      },
+      "source": "community"
+    },
+    {
+      "node": "fd947",
+      "date": "2026-09-21",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0x0660db80d6e5DFD9Fe168B7967B09A09328E6bF2",
+          "0xB8Dcad009E533066F12e408075E10E3a30F1f15A",
+          "0x3d0e30031b547737fFCf13c127350159A6C4ce17"
+        ],
+        "threshold": 2
+      },
+      "source": "nested"
+    },
+    {
+      "node": "admin",
+      "date": "2026-09-21",
+      "method": "getModulesPaginated(0x0000000000000000000000000000000000000001, 100)",
+      "result": {
+        "modules": [],
+        "next": "0x0000000000000000000000000000000000000001"
+      },
+      "source": "admin"
+    },
+    {
+      "node": "upgrade",
+      "date": "2026-09-21",
+      "method": "getModulesPaginated(0x0000000000000000000000000000000000000001, 100)",
+      "result": {
+        "modules": [],
+        "next": "0x0000000000000000000000000000000000000001"
+      },
+      "source": "upgrade"
+    },
+    {
+      "node": "comet",
+      "date": "2026-09-21",
+      "method": "governor()",
+      "result": "0x4f05f11CA5dE8946958d58AD765f16755f23b113",
+      "source": "comet"
+    },
+    {
+      "node": "config",
+      "date": "2026-09-21",
+      "method": "governor(); marketAdminPermissionChecker()",
+      "result": [
+        "0x4f05f11CA5dE8946958d58AD765f16755f23b113",
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "source": "config"
+    },
+    {
+      "node": "proxyadmin",
+      "date": "2026-09-21",
+      "method": "owner(); marketAdminPermissionChecker(); getProxyAdmin(comet); getProxyAdmin(configurator)",
+      "result": [
+        "0x76a07f14b53a205000d010af6cf96d4a41638629",
+        "0x0000000000000000000000000000000000000000",
+        "0x362739f84fFE4e5F06395301617A90F62eE1f4cf",
+        "0x362739f84fFE4e5F06395301617A90F62eE1f4cf"
+      ],
+      "source": "proxyadmin"
+    },
+    {
+      "node": "treasury",
+      "date": "2026-09-21",
+      "method": "hasRole(bytes32(0), GovernorTimelock)",
+      "result": true,
+      "source": "treasury"
+    },
+    {
+      "node": "gov",
+      "date": "2026-09-19",
+      "method": "timelock(); proposalGuardian(); proposalGuardianExpiration()",
+      "result": [
+        "0x6d903f6003cca6255D85CcA4D3B5E5146dC33925",
+        "0xbbf3f1421D886E9b2c5D716B5192aC998af2012c",
+        "1898467200"
+      ],
+      "source": "gov",
+      "note": "Earlier review carried forward; not refreshed on 21 September."
+    },
+    {
+      "node": "treasury",
+      "date": "2026-09-19",
+      "method": "hasRole(PROPOSER_ROLE,TMC); hasRole(EXECUTOR_ROLE,TMC); hasRole(CANCELLER_ROLE,Community)",
+      "result": [
+        true,
+        true,
+        true
+      ],
+      "source": "treasury",
+      "note": "Earlier review; role-specific refresh date is distinct from administrator refresh."
+    },
+    {
+      "node": "escrow",
+      "date": "2026-09-19",
+      "method": "TIMELOCK(); tmms(); tsg(); verified revoke source",
+      "result": [
+        "0x6d903f6003cca6255D85CcA4D3B5E5146dC33925",
+        "0x8BacCcA3e83843555867b3865d7689D099406567",
+        "0xbbf3f1421D886E9b2c5D716B5192aC998af2012c"
+      ],
+      "source": "escrow"
+    },
+    {
+      "node": "avatar",
+      "date": "2026-09-19",
+      "method": "getOwners(); getThreshold()",
+      "result": {
+        "owners": [
+          "0xefeD08b791423C7D7937507Cf840E86a7ddC11c1"
+        ],
+        "threshold": 1
+      },
+      "source": "avatar"
+    }
+  ],
+  "limitations": [
+    "No direct Governor revocation route was found through the reviewed governor, proxy-owner, Safe-owner or enabled-module paths. This is a bounded technical conclusion, not proof about every possible external contract, legal remedy or future migration.",
+    "On-chain addresses do not identify a human by themselves. Public attribution and on-chain membership are separate evidence layers.",
+    "Threshold overlap describes which owner authorizations can satisfy a threshold. It does not prove cooperation, common key custody, misconduct or independence. A Safe owner may itself be a contract.",
+    "Seven signer addresses lack supported person/organization attribution; compound-dao.eth has an explorer label but its organization remains unresolved. Failed search results are not proof that no public attribution exists.",
+    "The Comet pauseGuardian getter did not yield a fresh displayed result in this review. The pause edge is DOCUMENTED from deployment configuration, not marked ON-CHAIN VERIFIED.",
+    "The conceptual controller is not implemented, deployed or audited. An unrestricted delegate upgrade route could defeat superior governance authority; a final design must address this explicitly.",
+    "Some treasury and Governor readings are carried forward from 19 September and clearly dated in the ledger. Pages linked here can change after this review.",
+    "The map does not determine legal duties, proposal legitimacy, liability, or whether a governance resolution is legally binding."
+  ]
+}
