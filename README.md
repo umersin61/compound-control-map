@@ -1,3 +1,7 @@
+## Update — 22 September 2026
+
+The [control register](https://umersin61.github.io/compound-control-map/controls.html) details each reviewed Safe’s powers. Exact-address public sources now identify B8Dc… as Juan / Juanbug and 3d0e… as Abdullah Umar (publicly associated with Arana Digital). Five addresses remain unattributed. Historical identity attribution is not current key-custody proof. Contract ownership snapshots remain dated individually; this update does not refresh every reading.
+
 # Compound Control Map
 
 Independent community research into Institutional Comet permissions, Safe ownership overlap and Compound Governance revocation paths.
