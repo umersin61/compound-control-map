@@ -1,11 +1,11 @@
 {
   "title": "Compound Control Map",
-  "version": "2026-09-21.1",
+  "version": "2026-09-22.1",
   "chain": {
     "name": "Ethereum",
     "chainId": 1
   },
-  "asOf": "2026-09-21",
+  "asOf": "2026-09-22",
   "reviewMethod": "Read-only Etherscan contract calls and public primary-source documentation. Values were observed across a review session, not at one pinned block. On-chain verified means the returned state was inspected; it is not a full security audit or independently archived RPC proof.",
   "scope": "Institutional Comet control paths, four principal Safe owner sets, one nested Safe, and selected treasury revocation precedents. No claim to enumerate all Compound wallets or all human relationships.",
   "nodes": [
@@ -43,11 +43,13 @@
       "type": "safe",
       "address": "0x4f05f11CA5dE8946958d58AD765f16755f23b113",
       "summary": "Institutional market administration.",
-      "powers": "Comet.governor() and Configurator.governor() point here. This Safe can authorize the administrative functions exposed by those contracts; the proxy upgrade ownership is separate.",
+      "powers": "Institutional Comet governor and Configurator governor. Reviewed core functions include pausing/unpausing market operations, withdrawing available reserves and approveThis(manager,asset,amount), which grants token allowances from Comet. Configurator authority covers market configuration, governor/pause guardian, factories, feeds, extension delegate, rates, reward speeds, collateral settings and permission checker. Stored configuration changes need deployment and an authorized proxy upgrade to take effect in Comet. This is not merely a narrow parameter role; deployed extension routes are not exhaustively audited here.",
       "sources": [
         "admin",
         "comet",
-        "config"
+        "config",
+        "comet-code",
+        "config-code"
       ],
       "status": "onchain",
       "threshold": 3,
@@ -66,7 +68,7 @@
       "type": "safe",
       "address": "0x76a07f14b53a205000d010af6cf96d4a41638629",
       "summary": "Owns Institutional Comet’s proxy administrator.",
-      "powers": "CometProxyAdmin.owner() points here. The owner can authorize proxy upgrade/admin operations. All four Admin Safe owner addresses are in this seven-owner set.",
+      "powers": "Owns CometProxyAdmin, which administers both Institutional Comet and Configurator proxies. Can authorize replacement implementations and proxy administration through that contract. An unrestricted implementation upgrade can change the market’s rules and authorities; it is broader than applying a pre-agreed configuration. All four Admin owner addresses together also satisfy this 4/7 threshold.",
       "sources": [
         "upgrade",
         "proxyadmin"
@@ -91,11 +93,12 @@
       "type": "safe",
       "address": "0x8BacCcA3e83843555867b3865d7689D099406567",
       "summary": "Treasury Management Committee signing authority.",
-      "powers": "Controls assets held by this Safe through its signing threshold, and has delegated treasury roles. Governance’s authority over the treasury escrow/timelock must not be confused with ownership of this Safe.",
+      "powers": "4/6 Safe controls its own custody. Holds proposer/executor roles on Treasury Timelock, allowing scheduled operations subject to delay, cancellation and destination permissions. Is tmms on Treasury escrow: initiates withdrawals specifying asset, amount and recipient, and cancels pending requests. Execution after cooldown is permissionless, within the expiry window and only while unpaused. Governance can replace tmms and recover assets still in escrow; this does not recover assets already paid elsewhere. Additional strategy/streamer roles are documented but not fully refreshed.",
       "sources": [
         "tmc",
         "treasury",
-        "tmc-transparency"
+        "tmc-transparency",
+        "escrow-code"
       ],
       "status": "onchain",
       "threshold": 4,
@@ -116,11 +119,13 @@
       "type": "safe",
       "address": "0xbbf3f1421D886E9b2c5D716B5192aC998af2012c",
       "summary": "Proposal Guardian and security authority.",
-      "powers": "Can cancel unexecuted Governor proposals while its guardian authority is active. This is a human-operated cancellation power, not an automatic distinction between legitimate and malicious proposals. Market pause authority is documented separately.",
+      "powers": "5/9 Safe is Governor Proposal Guardian: cancellation of unexecuted proposals while that authority is active. Holds Treasury Timelock cancellation role. Is escrow tsg: can block a pending withdrawal permanently and pause/unpause withdrawal execution; Governor Timelock can also pause/unpause and replace tsg. Institutional Comet pauseGuardian role is documented from deployment, not freshly confirmed by getter. Reviewed Comet core pause method supports both pause and unpause. These are separate permissions, not general ownership of all Compound contracts.",
       "sources": [
         "community",
         "gov",
-        "deployment"
+        "deployment",
+        "escrow-code",
+        "comet-code"
       ],
       "status": "onchain",
       "threshold": 5,
@@ -208,7 +213,7 @@
       "type": "safe",
       "address": "0xeB6332bbB14b1488eFb3A395B8EBF6a6904C4241",
       "summary": "A Compound-native delegation precedent.",
-      "powers": "The earlier review found the Treasury Timelock as the single owner (threshold 1). Historical proposals describe limited manager operations through Zodiac Roles. Current role permissions are outside this map’s full audit scope.",
+      "powers": "Observed 1/1 Safe owned by Treasury Timelock. Treasury Timelock-authorized transactions can exercise Safe ownership. Historical Zodiac Roles manager permissions are separate; their current state and the reported strategy deprecation have not been fully re-verified. This is a treasury example, not the Institutional Comet control structure.",
       "sources": [
         "avatar",
         "zodiac",
@@ -236,7 +241,7 @@
       "type": "safe",
       "address": "0xfd947c72f09703210eeCbcab9c9206fE5e1Bb6e2",
       "summary": "Etherscan ENS label; nested 2-of-3 Safe. The label alone does not establish authority to represent the DAO. Exact organizational attribution is unresolved.",
-      "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
+      "powers": "Nested 2/3 Safe is one owner on each of Admin, Upgrade and TMC. Two of its three owner authorizations can provide that single parent-owner authorization. It cannot by itself meet any of those parent thresholds. Two owners have public identity matches (Juan / Juanbug and Abdullah Umar); 0660 remains unattributed. Its organizational mandate is unresolved; the ENS name does not make it Compound Governance.",
       "sources": [
         "nested",
         "admin",
@@ -504,30 +509,34 @@
     },
     {
       "id": "B8Dc",
-      "label": "Unattributed · B8Dc",
-      "type": "unknown",
+      "label": "Juan / Juanbug",
+      "type": "person",
       "address": "0xB8Dcad009E533066F12e408075E10E3a30F1f15A",
-      "summary": "Nested compound-dao.eth Safe owner. Deployment activity does not establish an individual or organization.",
+      "summary": "The June 2024 Uniswap LTIPP proposal publicly lists Juanbug with this exact address. Lido committee documentation corroborates the match. This is public attribution, not fresh proof of current key custody.",
       "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
       "sources": [
-        "nested"
+        "uadp",
+        "nested",
+        "juan"
       ],
-      "status": "unknown",
-      "identityStatus": "unknown",
+      "status": "documented",
+      "identityStatus": "documented",
       "signer": true
     },
     {
       "id": "3d0e",
-      "label": "Unattributed · 3d0e",
-      "type": "unknown",
+      "label": "Abdullah Umar",
+      "type": "person",
       "address": "0x3d0e30031b547737fFCf13c127350159A6C4ce17",
-      "summary": "Nested compound-dao.eth Safe owner. No supported public identity established.",
+      "summary": "The June 2024 Uniswap LTIPP proposal lists Abdullah Umar with this exact address. His January 2024 Uniswap committee application identifies Michigan Blockchain / Arana Digital. Current key custody and the organizational mandate of this Safe remain separate questions.",
       "powers": "An owner address contributes toward a Safe’s threshold. It does not unilaterally control the Safe unless it independently meets the required authorization rules.",
       "sources": [
-        "nested"
+        "uadp",
+        "nested",
+        "abdullah"
       ],
-      "status": "unknown",
-      "identityStatus": "unknown",
+      "status": "documented",
+      "identityStatus": "documented",
       "signer": true
     },
     {
@@ -1345,6 +1354,54 @@
       "kind": "documented",
       "note": "Resolution context. This map does not assert a current voting outcome or that a signaling vote itself changes permissions.",
       "accessed": "2026-09-21"
+    },
+    {
+      "id": "uadp",
+      "title": "Uniswap LTIPP · exact-address signer register",
+      "url": "https://gov.uniswap.org/t/arbitrum-ltipp-incentive-matching/24066",
+      "kind": "documented",
+      "note": "June 2024 proposal names Juanbug and Abdullah Umar alongside the exact addresses; public historical attribution, not fresh key-custody proof.",
+      "accessed": "2026-09-22"
+    },
+    {
+      "id": "abdullah",
+      "title": "Abdullah Umar · public Arana affiliation",
+      "url": "https://gov.uniswap.org/t/uniswap-deployments-accountability-committee-next-steps-the-committee-application-thread/22475/5",
+      "kind": "documented",
+      "note": "January 2024 applicant self-identification: Michigan Blockchain / Arana Digital.",
+      "accessed": "2026-09-22"
+    },
+    {
+      "id": "juan",
+      "title": "Lido committees · Juan address",
+      "url": "https://docs.lido.fi/multisigs/committees/",
+      "kind": "documented",
+      "note": "Corroborating exact-address public attribution.",
+      "accessed": "2026-09-22"
+    },
+    {
+      "id": "comet-code",
+      "title": "Comet core · reference source",
+      "url": "https://github.com/Compound-Foundation/comet/blob/main/contracts/CometWithExtendedAssetList.sol",
+      "kind": "documented",
+      "note": "Core privileged functions reviewed; repository main is mutable, not an immutable deployed-bytecode attestation.",
+      "accessed": "2026-09-22"
+    },
+    {
+      "id": "config-code",
+      "title": "Configurator · reference source",
+      "url": "https://github.com/Compound-Foundation/comet/blob/main/contracts/Configurator.sol",
+      "kind": "documented",
+      "note": "Configuration setters and deployment process; source-level explanation is distinct from the dated role readings.",
+      "accessed": "2026-09-22"
+    },
+    {
+      "id": "escrow-code",
+      "title": "Treasury escrow · verified source",
+      "url": "https://etherscan.io/address/0xDcB34b56842F853A69E86De5A0c22c49d97C130C#code",
+      "kind": "documented",
+      "note": "Deployed verified CompoundTreasury source: withdrawal, safeguard, role replacement and revoke methods.",
+      "accessed": "2026-09-22"
     }
   ],
   "evidence": [
@@ -1540,7 +1597,7 @@
     "No direct Governor revocation route was found through the reviewed governor, proxy-owner, Safe-owner or enabled-module paths. This is a bounded technical conclusion, not proof about every possible external contract, legal remedy or future migration.",
     "On-chain addresses do not identify a human by themselves. Public attribution and on-chain membership are separate evidence layers.",
     "Threshold overlap describes which owner authorizations can satisfy a threshold. It does not prove cooperation, common key custody, misconduct or independence. A Safe owner may itself be a contract.",
-    "Seven signer addresses lack supported person/organization attribution; compound-dao.eth has an explorer label but its organization remains unresolved. Failed search results are not proof that no public attribution exists.",
+    "Five signer addresses lack supported person/organization attribution; compound-dao.eth has an explorer label but its organization remains unresolved. Failed search results are not proof that no public attribution exists.",
     "The Comet pauseGuardian getter did not yield a fresh displayed result in this review. The pause edge is DOCUMENTED from deployment configuration, not marked ON-CHAIN VERIFIED.",
     "The conceptual controller is not implemented, deployed or audited. An unrestricted delegate upgrade route could defeat superior governance authority; a final design must address this explicitly.",
     "Some treasury and Governor readings are carried forward from 19 September and clearly dated in the ledger. Pages linked here can change after this review.",
