@@ -1,3 +1,7 @@
+## Update — 22 September 2026
+
+The [control register](https://umersin61.github.io/compound-control-map/controls.html) details each reviewed Safe’s powers. Exact-address public sources now identify B8Dc… as Juan / Juanbug and 3d0e… as Abdullah Umar (publicly associated with Arana Digital). Five addresses remain unattributed. Historical identity attribution is not current key-custody proof. Contract ownership snapshots remain dated individually; this update does not refresh every reading.
+
 # Evidence notes — 21 September 2026
 
 This file documents review coverage and open items. The machine-readable ledger in `data.json` contains exact owner arrays, addresses and observation dates.
@@ -22,7 +26,7 @@ The April 2026 Community Multisig register identifies all nine current owners an
 
 The TMC transparency update explicitly names Victor / Platonia and the exact `aA9D…` address. allthecolors publicly self-attested the `66cD…` address in the 2022 grants thread; the signature was not independently recovered here.
 
-Exact-address searches, public forum signer/treasury/security-provider records, deployment material and explorer labels did not establish supported identities for `0660…`, `671b…`, `FcFf…`, `9963…` or `f5e6…`. The nested owners `B8Dc…` and `3d0e…` also remain unattributed. Explorer pages for `671b…`, `FcFf…` and `9963…` showed no public identity label or outgoing transaction history at inspection. This does not imply a key is unused: Safe signatures need not originate an Ethereum transaction.
+Exact-address searches, public forum signer/treasury/security-provider records, deployment material and explorer labels did not establish supported identities for `0660…`, `671b…`, `FcFf…`, `9963…` or `f5e6…`. The nested owners `B8Dc…` and `3d0e…` were subsequently attributed on 22 September; see the update above. Explorer pages for `671b…`, `FcFf…` and `9963…` showed no public identity label or outgoing transaction history at inspection. This does not imply a key is unused: Safe signatures need not originate an Ethereum transaction.
 
 Exchange funding, transaction submission, code deployment or participation in the same Safe was not treated as proof of identity. The organization behind `compound-dao.eth` is unresolved: an ENS/explorer label alone is not evidence of a CGWG mandate or authority to represent the DAO.
 
@@ -43,3 +47,4 @@ CGWG renewal material names Arana Digital and PGov and describes PGov’s Commun
 ## Validation
 
 Checked address format, source/edge integrity, overlap arithmetic and unknown-identity counts. Browser checks cover model switching, graph filters, signer drawers, nested owners, search, the shared-owner matrix and a narrow-screen layout. No wallet operations were performed.
+
